@@ -5,12 +5,23 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js && npm run build",
+    "start": "node server.js & npm run build",
     "build": "webpack",
     "build:dev": "npm run build -- --watch --mode development",
     "start:dev": "nodemon server --ignore dist/ --ignore src/ & npm run build:dev"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.3.0",
+    "sequelize": "^6.3.4",
+    "morgan": "^1.10.0"
+  }
 }
