@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
 const db = require('./db');
-const { Department, Employee } = db.models;
 
 const app = express();
 app.use(require('body-parser').json());
@@ -14,51 +13,10 @@ app.get('/', (req, res, next) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/api/employees', async (req, res, next) => {
-  try {
-    const employees = await Employee.findAll();
-    res.send(employees);
-  }
-  catch(err) {
-    next(err)
-  }
-});
-
-app.get('/api/departments', async (req, res, next) => {
-  try {
-    const departments = await Department.findAll();
-    res.send(departments);
-  }
-  catch(err) {
-    next(err)
-  }
-});
-
-app.delete('/api/employees/:id', async (req, res, next) => {
-  try {
-    const employee = await Employee.findByPk(req.params.id);
-    await employee.destroy();
-    res.sendStatus(204);
-  }
-  catch(err) {
-    next(err)
-  }
-});
-
-app.put('/api/employees/:id', async (req, res, next) => {
-  try {
-    const employee = await Employee.findByPk(req.params.id);
-    await employee.update(req.body);
-    res.send(employee);
-  }
-  catch(err) {
-    next(err)
-  }
-});
-
+// API ROUTES
+app.use('/api', require('./routes/api'));
 
 // ERROR HANDLERS BELOW
-
 app.use((req, res, next) => {
   const err = new Error('Page Not Found');
   err.status = 404;
@@ -79,7 +37,6 @@ const init = async () => {
   catch(err) {
     console.error(err);
   }
-
 }
 
 init();

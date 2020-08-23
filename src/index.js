@@ -10,9 +10,10 @@ class App extends Component {
       employees: []
     }
     this.destroy = this.destroy.bind(this);
-    this.removeDept = this.removeDept.bind(this);
+    this.changeDept = this.changeDept.bind(this);
     this.displayNoDept = this.displayNoDept.bind(this);
     this.displayDepts = this.displayDepts.bind(this);
+    this.addEmployee = this.addEmployee.bind(this);
   }
 
   async componentDidMount() {
@@ -21,13 +22,14 @@ class App extends Component {
 
   render() {
     const { employees } = this.state;
-    const { displayNoDept, displayDepts } = this;
+    const { displayNoDept, displayDepts, addEmployee } = this;
 
     return (
     <div>
       <div>
         <h1>Acme Employees And Departments</h1>
         <p>{ employees.length } Total Employees</p>
+        <button onClick={ () => addEmployee() }>Add New Employee</button>
       </div>
       <div id='all-depts'>
         <div id='no-dept' className='dept'>
@@ -40,8 +42,9 @@ class App extends Component {
     )
   }
 
+  // show column for employees with no department
   displayNoDept() {
-    const { destroy } = this;
+    const { destroy, changeDept } = this;
     const { employees } = this.state;
 
     return (
@@ -53,6 +56,7 @@ class App extends Component {
               <li key={ employee.id }>
                 <p>{ employee.name }</p>
                 <button onClick={ () => destroy(employee) }>x</button>
+                <button onClick={ () => changeDept(employee, 'add') }>Assign Random Department</button>
               </li>
             )
         })}
@@ -60,9 +64,10 @@ class App extends Component {
     )
   }
 
+  // show all department columns and their employees
   displayDepts() {
     const { departments, employees } = this.state;
-    const { destroy, removeDept } = this;
+    const { destroy, changeDept } = this;
 
     return (
       departments.map(department => {
@@ -77,7 +82,7 @@ class App extends Component {
                   <li key={ employee.id }>
                     <p>{ employee.name }</p>
                     <button onClick={ () => destroy(employee) }>x</button>
-                    <button onClick={ () => removeDept(employee) }>Remove From Department</button>
+                    <button onClick={ () => changeDept(employee, 'remove') }>Remove From Department</button>
                   </li>
                 )
             })}
@@ -88,18 +93,34 @@ class App extends Component {
     )
   }
 
+  // functionality for 'x' button
   async destroy(employee) {
     await axios.delete(`api/employees/${ employee.id }`);
     const employees = this.state.employees.filter(e => e.id !== employee.id);
     this.setState({ employees });
   }
 
-  async removeDept(employee) {
-    employee.departmentId = null;
-    await axios.put(`api/employees/${employee.id}`);
+  // functionality for "remove from department or add random department" buttons
+  async changeDept(employee, action) {
+    if (action === 'remove') {
+      employee.departmentId = null;
+    } else if (action === 'add') {
+      employee.departmentId = Math.ceil(Math.random() * 5);
+    }
+    await axios.put(`api/employees/${employee.id}`, { departmentId: employee.departmentId });
     const employees = this.state.employees.map(e => e.id === employee.id ? employee : e);
     this.setState({ employees });
   }
+
+  // functionality for "add new employee button"
+  // adds random employee to random department
+  async addEmployee() {
+    const employee = (await axios.post(`api/employees`)).data;
+    const employees = this.state.employees;
+    employees.push(employee);
+    this.setState({ employees });
+  }
+
 }
 
 ReactDOM.render(

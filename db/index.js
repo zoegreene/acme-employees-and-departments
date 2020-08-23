@@ -15,11 +15,7 @@ const Employee = db.define('employee', {
   },
   departmentId: {
     type: INTEGER,
-    allowNull: true,
-    validate: {
-      min: 1,
-      max: 5
-    }
+    allowNull: true
   }
 });
 
